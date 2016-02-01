@@ -1,0 +1,330 @@
+/*	
+*	CS440 Spring 2016 
+*	Lab 2
+*	--------------
+*	This program introduces the following concepts:
+*		a) Reading a stream of images from a webcamera, and displaying the video
+*		b) Skin color detection
+*		c) Background differencing
+*		d) Visualizing motion history
+*	--------------
+*/
+#include "stdafx.h"
+//opencv libraries
+#include "opencv2/core/core.hpp"
+#include <opencv2/imgcodecs.hpp>
+#include "opencv2/highgui/highgui.hpp"
+#include "opencv2/imgproc/imgproc.hpp"
+//C++ standard libraries
+#include <iostream>
+#include <vector>
+
+using namespace cv;
+using namespace std;
+
+//function declarations
+
+/**
+	Function that returns the maximum of 3 integers
+	@param a first integer
+	@param b second integer
+	@param c third integer
+*/
+int myMax(int a, int b, int c);
+
+/**
+	Function that returns the minimum of 3 integers
+	@param a first integer
+	@param b second integer
+	@param c third integer
+*/
+int myMin(int a, int b, int c);
+
+/**
+	Function that detects whether a pixel belongs to the skin based on RGB values
+	@param src The source color image
+	@param dst The destination grayscale image where skin pixels are colored white and the rest are colored black
+*/
+void mySkinDetect(Mat& src, Mat& dst);
+
+/**
+	Function that does frame differencing between the current frame and the previous frame
+*/
+void myFrameDifferencing(Mat& one, Mat& two, Mat& dst);
+
+/**
+	Function that accumulates the frame differences for a certain number of pairs of frames
+*/
+void myMotionEnergy();
+
+/**
+Creates a thresholded image from a grayscale image.
+
+@param src The source color image
+@param dst The destination tinted image
+@param threshold The specified threshold intensity
+*/
+void myThresholdImage(Mat& src, Mat& dst, int threshold);
+
+/** Creates a grayscale image from a color image.
+@param src The source color image
+@param dst The destination grayscale image
+*/
+//this doesnt make a copy of the image, just lets u use them
+void myGrayScale(Mat& src, Mat& dst);
+
+int main()
+{
+
+//----------------
+//a) Reading a stream of images from a webcamera, and displaying the video
+//----------------
+	// For more information on reading and writing video: http://docs.opencv.org/modules/highgui/doc/reading_and_writing_images_and_video.html
+	// open the video camera no. 0
+	VideoCapture cap(0); 
+
+	// if not successful, exit program
+    if (!cap.isOpened())  
+    {
+        cout << "Cannot open the video cam" << endl;
+        return -1;
+    }
+
+	// Mat object to read first frame
+	Mat frame0;
+	
+	// read a new frame from video
+	bool bSuccess0 = cap.read(frame0); 
+
+	//if not successful, break loop
+    if (!bSuccess0) 
+	{
+			cout << "Cannot read a frame from video stream" << endl;
+	}
+
+	//create a window called "MyVideoFrame0"
+	namedWindow("MyVideoFrame0", WINDOW_AUTOSIZE);
+	imshow("MyVideoFrame0", frame0);
+
+	//create a window called "MyVideo"
+	namedWindow("MyVideo",WINDOW_AUTOSIZE);
+	namedWindow("MySkinDetect",WINDOW_AUTOSIZE);
+
+	cout << "Got to 1" << endl;
+	Mat frame2;
+	bool frameFull = false;
+
+	//convert background image to b&w
+	Mat frameDest0;
+	frameDest0 = Mat::zeros(frame0.rows, frame0.cols, CV_8UC1);
+	Mat gray_image0 = Mat::zeros(frame0.rows, frame0.cols, CV_8UC1);
+	Mat thres_image0 = Mat::zeros(frame0.rows, frame0.cols, CV_8UC1);
+	int thres = 128;
+	myThresholdImage(gray_image0, thres_image0, thres);
+	Mat prevFrame = thres_image0;
+
+
+	while (1)
+    {
+		// read a new frame from video
+        Mat frame;
+        bool bSuccess = cap.read(frame); 
+
+		cout << "got to 2" << endl;
+		if (!frameFull)
+		{
+			cout << "got to 3" << endl;
+			frame2 = frame;
+			//frameFull = true;
+		}
+		
+		//show the frame in "MyVideo" window
+		imshow("MyVideo", frame);
+
+		//if not successful, break loop
+        if (!bSuccess) 
+        {
+             cout << "Cannot read a frame from video stream" << endl;
+             break;
+        }
+		
+		// destination frame
+		Mat frameDest;
+		frameDest = Mat::zeros(frame.rows, frame.cols, CV_8UC1); //Returns a zero array of same size as src mat, and of type CV_8UC1
+//----------------
+//	b) Skin color detection
+//----------------
+		mySkinDetect(frame, frameDest);
+		imshow("MySkinDetect", frameDest);
+
+//----------------
+//	c) Background differencing
+//----------------
+		//TODO: HW1 - EXERCISE 2 take two b&w images
+		//frame v frame0, need variable to store prev frame, two matrices
+		Mat frameDest2;
+		frameDest2 = Mat::zeros(frame.rows, frame.cols, CV_8UC1);
+
+		//Create a Mat object that will store the data of the grayscale image
+		//convert original into grayscale
+		//create matrix, w one channel bc grayscale
+		Mat gray_image = Mat::zeros(frame0.rows, frame0.cols, CV_8UC1);
+		Mat gray_image2 = Mat::zeros(frame2.rows, frame2.cols, CV_8UC1);
+		//Call the myGreyScale function
+		//pass in image and container for new image
+		myGrayScale(frame0, gray_image);
+		myGrayScale(frame2, gray_image2);
+
+		//Create a Mat object that will store the data of the thresholded image
+		Mat thres_image = Mat::zeros(frame0.rows, frame0.cols, CV_8UC1);
+		Mat thres_image2 = Mat::zeros(frame2.rows, frame2.cols, CV_8UC1);
+		//every pixel less than 128 is 0, everything above is 255 to make it black and white
+		//Call the threshold
+		myThresholdImage(gray_image, thres_image, thres);
+		myThresholdImage(gray_image2, thres_image2, thres);
+
+		myFrameDifferencing(thres_image, thres_image2, frameDest2);
+		imshow("FrameDifferencing", frameDest2);
+
+		cout << "got to 4" << endl;
+//----------------
+//  d) Visualizing motion history
+//----------------
+		//TODO: HW1 - EXERCISE 2  get bunch of frame diff images, do an or operation. if the pixel is white in either, make it white in ouput
+		
+		
+		Mat frameDest3;
+		frameDest3 = Mat::zeros(frame.rows, frame.cols, CV_8UC1);
+
+		//Create a Mat object that will store the data of the grayscale image
+		//convert original into grayscale
+		//create matrix, w one channel bc grayscale
+		Mat gray_image4 = Mat::zeros(frame.rows, frame.cols, CV_8UC1);
+		//Call the myGreyScale function
+		//pass in image and container for new image
+		myGrayScale(frame, gray_image4);
+
+		//Create a Mat object that will store the data of the thresholded image
+		Mat thres_image4 = Mat::zeros(frame.rows, frame.cols, CV_8UC1);
+		//every pixel less than 128 is 0, everything above is 255 to make it black and white
+		//Call the threshold
+		myThresholdImage(gray_image4, thres_image4, thres);
+
+		cout << "got to 5" << endl;
+		myFrameDifferencing(prevFrame, thres_image4, frameDest3);
+		cout << "got to 7" << endl;
+		imshow("Motion History", frameDest3);
+		cout << "got to 8" << endl;
+		prevFrame = frameDest3;
+		cout << "got to 6" << endl;
+
+        if (waitKey(30) == 27) 
+       {
+            cout << "esc key is pressed by user" << endl;
+            break; 
+       }
+	
+    }
+
+	cap.release();
+	return 0;
+}
+
+//Function that returns the maximum of 3 integers
+int myMax(int a, int b, int c) {
+	return max(max(a, b), c);
+}
+
+//Function that returns the minimum of 3 integers
+int myMin(int a, int b, int c) {
+	return min(min(a, b), c);
+}
+
+//Function that detects whether a pixel belongs to the skin based on RGB values
+void mySkinDetect(Mat& src, Mat& dst) {
+	//Surveys of skin color modeling and detection techniques:
+	//Vezhnevets, Vladimir, Vassili Sazonov, and Alla Andreeva. "A survey on pixel-based skin color detection techniques." Proc. Graphicon. Vol. 3. 2003.
+	//Kakumanu, Praveen, Sokratis Makrogiannis, and Nikolaos Bourbakis. "A survey of skin-color modeling and detection methods." Pattern recognition 40.3 (2007): 1106-1122.
+	
+	//TODO:
+	//Use the following test for skin color detection
+	//Red > 95 and Blue > 20 and Green > 40, and 
+	//max(Red, Green, Blue) - min(Red, Green, Blue) > 15, and
+	//abs(Red - Green) > 15, and
+	//Red > Green, and
+	//Red > Blue
+
+	for (int i = 0; i < src.rows; i++)
+	{
+		for (int j = 0; j < src.cols; j++)
+		{
+			Vec3b intensity = src.at<Vec3b>(i, j);
+			if ((intensity[2] > 95) && (intensity[0] > 20) && (intensity[1] > 40) && (myMax(intensity[2], intensity[1], intensity[0]) - myMin(intensity[2], intensity[1], intensity[0]) > 15) && (abs(intensity[2] - intensity[1]) > 15) && (intensity[2] > intensity[1]) && (intensity[2] > intensity[0]))
+			{
+				dst.at<uchar>(i, j) = 255;
+			}
+		}
+	}
+
+}
+
+//Function that does frame differencing between the current frame and the previous frame
+//if theyre diff color black, else color white
+void myFrameDifferencing(Mat& one, Mat& two, Mat& dst) {
+	for (int i = 0; i < one.rows; i++)
+	{
+		for (int j = 0; j < one.cols; j++)
+		{
+			if (one.at<uchar>(i, j) != two.at<uchar>(i, j))
+			{
+				dst.at<uchar>(i, j) = 255;
+			}
+		}
+
+	}
+}
+
+//Function that accumulates the frame differences for a certain number of pairs of frames
+void myMotionEnergy() {
+	//TODO:
+	
+}
+
+//Creates a thresholded image from a grayscale image.
+void myThresholdImage(Mat& src, Mat& dst, int threshold)
+{
+	dst = src.clone();
+	for (int i = 0; i < src.rows; i++)
+	{
+		for (int j = 0; j < src.cols; j++)
+		{
+			//For each pixel, assign intensity value of 0 if below threshold, else assign intensity value of 255
+			int intensity = src.at<uchar>(i, j);
+			if (intensity < threshold)
+			{
+				dst.at<uchar>(i, j) = 0;
+			}
+			else
+			{
+				dst.at<uchar>(i, j) = 255;
+			}
+		}
+	}
+}
+
+//Creates a grayscale image from a color image.
+void myGrayScale(Mat& src, Mat& dst) {
+	//Different algorithms for converting color to grayscale: http://www.johndcook.com/blog/2009/08/24/algorithms-convert-color-grayscale/
+	//go tru every pixel, get the bgr vals, then add them up and /3, then use this avg as the new val
+	/*dst = Mat::zeros(src.rows, src.cols, CV_8UC1); //Returns a zero array of same size as src mat, and of type CV_8UC1
+	for (int i = 0; i < src.rows; i++){
+	for (int j = 0; j < src.cols; j++){
+	//For each pixel, compute the average intensity of the 3 color channels
+	Vec3b intensity = src.at<Vec3b>(i,j); //Vec3b is a vector of 3 uchar (unsigned character)
+	int avg = (intensity[0] + intensity[1] + intensity[2])/3;
+	dst.at<uchar>(i,j) = avg;
+	}
+	} */
+	//takes source and destination, and how u r manipulating it
+	cvtColor(src, dst, CV_BGR2GRAY); //cvtColor documentation: http://docs.opencv.org/modules/imgproc/doc/miscellaneous_transformations.html
+}
