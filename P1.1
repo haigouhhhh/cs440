@@ -1,0 +1,448 @@
+/*
+*	CS440 Spring 2016
+*	Lab 2
+*	--------------
+*	This program introduces the following concepts:
+*		a) Reading a stream of images from a webcamera, and displaying the video
+*		b) Skin color detection
+*		c) Background differencing
+*		d) Visualizing motion history
+*	--------------
+*/
+#include "stdafx.h"
+//opencv libraries
+#include "opencv2/core/core.hpp"
+#include <opencv2/imgcodecs.hpp>
+#include "opencv2/highgui/highgui.hpp"
+#include "opencv2/imgproc/imgproc.hpp"
+//C++ standard libraries
+#include <iostream>
+#include <vector>
+#include <list>
+#include <stdio.h>
+#include <stdlib.h>
+#include <cmath>
+
+using namespace cv;
+using namespace std;
+
+//function declarations
+
+/**
+Function that returns the maximum of 3 integers
+@param a first integer
+@param b second integer
+@param c third integer
+*/
+int myMax(int a, int b, int c);
+
+/**
+Function that returns the minimum of 3 integers
+@param a first integer
+@param b second integer
+@param c third integer
+*/
+int myMin(int a, int b, int c);
+
+/**
+Function that detects whether a pixel belongs to the skin based on RGB values
+@param src The source color image
+@param dst The destination grayscale image where skin pixels are colored white and the rest are colored black
+*/
+void mySkinDetect(Mat& src, Mat& dst);
+
+/**
+Function that does frame differencing between the current frame and the previous frame
+*/
+void myFrameDifferencing(Mat& one, Mat& two, Mat& dst);
+
+/**
+Function that accumulates the frame differences for a certain number of pairs of frames
+*/
+void myMotionEnergy(vector<Mat> frames, Mat& dst);
+
+/**
+Creates a thresholded image from a grayscale image.
+
+@param src The source color image
+@param dst The destination tinted image
+@param threshold The specified threshold intensity
+*/
+void myThresholdImage(Mat& src, Mat& dst, int threshold);
+
+/** Creates a grayscale image from a color image.
+@param src The source color image
+@param dst The destination grayscale image
+*/
+//this doesnt make a copy of the image, just lets u use them
+void myGrayScale(Mat& src, Mat& dst);
+
+//overlays image
+//from http://jepsonsblog.blogspot.com/2012/10/overlay-transparent-image-in-opencv.html
+void overlayImage(const cv::Mat &background, const cv::Mat &foreground, cv::Mat &output, cv::Point2i location);
+
+Mat paper = imread("coolPaper.jpg", 1);
+Mat scissors = imread("coolScissors.jpg", 1);
+Mat rock = imread("coolRock.jpg", 1);
+
+int main()
+{
+
+	//----------------
+	//a) Reading a stream of images from a webcamera, and displaying the video
+	//----------------
+	// For more information on reading and writing video: http://docs.opencv.org/modules/highgui/doc/reading_and_writing_images_and_video.html
+	// open the video camera no. 0
+	VideoCapture cap(0);
+
+	// if not successful, exit program
+	if (!cap.isOpened())
+	{
+		cout << "Cannot open the video cam" << endl;
+		return -1;
+	}
+
+	// Mat object to read first frame
+	Mat frame0;
+
+	// read a new frame from video
+	bool bSuccess0 = cap.read(frame0);
+
+	//if not successful, break loop
+	if (!bSuccess0)
+	{
+		cout << "Cannot read a frame from video stream" << endl;
+	}
+
+	//create a window called "MyVideoFrame0"
+	namedWindow("MyVideoFrame0", WINDOW_AUTOSIZE);
+	imshow("MyVideoFrame0", frame0);
+
+	//create a window called "MyVideo"
+	namedWindow("MyVideo", WINDOW_AUTOSIZE);
+	namedWindow("MySkinDetect", WINDOW_AUTOSIZE);
+
+	int thresh = 128;
+	int max_thresh = 255;
+
+	int i = 0;
+	vector<Mat> frames;
+	vector<Mat> myMotionHistory;
+	myMotionHistory.push_back(frame0);
+	bool three = false;
+
+	while (1)
+	{
+		i++;
+		if (i >= 3){
+			three = true;
+		}
+		
+		// read a new frame from video
+		Mat frame; 
+		bool bSuccess = cap.read(frame);
+
+		if (i < 3){
+			myMotionHistory.push_back(frame);
+		}
+
+		//show the frame in "MyVideo" window
+		imshow("MyVideo", frame);
+
+		//if not successful, break loop
+		if (!bSuccess)
+		{
+			cout << "Cannot read a frame from video stream" << endl;
+			break;
+		}
+
+		Mat frameGray;
+		// Convert image to gray
+		// Documentation for cvtColor: http://docs.opencv.org/modules/imgproc/doc/miscellaneous_transformations.html
+		cvtColor(frame, frameGray, CV_BGR2GRAY);
+		namedWindow("Gray", CV_WINDOW_AUTOSIZE);
+		imshow("Gray", frameGray);
+
+		Mat blurFrame;
+		// Blur the image
+		// Documentation for blur: http://docs.opencv.org/modules/imgproc/doc/filtering.html?highlight=blur#blur
+		blur(frameGray, blurFrame, Size(3, 3));
+		namedWindow("Blurred", CV_WINDOW_AUTOSIZE);
+		imshow("Blurred", blurFrame);
+
+		// destination frame
+		Mat skinFound;
+		skinFound = Mat::zeros(frame.rows, frame.cols, CV_8UC1); //Returns a zero array of same size as src mat, and of type CV_8UC1
+		
+		//	Skin color detection
+		mySkinDetect(frame, skinFound);
+		imshow("MySkinDetect", skinFound);
+
+		// Convert into binary image using thresholding
+		// Documentation for threshold: http://docs.opencv.org/modules/imgproc/doc/miscellaneous_transformations.html?highlight=threshold#threshold
+		// Example of thresholding: http://docs.opencv.org/doc/tutorials/imgproc/threshold/threshold.html
+		Mat thres_output;
+		threshold(blurFrame, thres_output, thresh, max_thresh, 0);
+		namedWindow("Thresholded", CV_WINDOW_AUTOSIZE);
+		imshow("Thresholded", thres_output);
+
+		
+
+		if (three){
+			Mat frameDest;
+			frameDest = Mat::zeros(frame.rows, frame.cols, CV_8UC1);
+
+			myFrameDifferencing(frame0, frame, frameDest);
+			imshow("MyVideo", frameDest);
+			myMotionHistory.erase(myMotionHistory.begin());
+			myMotionHistory.push_back(frameDest);
+			Mat myMH = Mat::zeros(frame0.rows, frame0.cols, CV_8UC1);
+			
+			myMotionEnergy(myMotionHistory, myMH);
+			imshow("MyMtionEnergy", myMH);
+		}
+
+		vector<vector<Point>> contours;
+		vector<Vec4i> hierarchy;
+		// Find contours
+		// Documentation for finding contours: http://docs.opencv.org/modules/imgproc/doc/structural_analysis_and_shape_descriptors.html?highlight=findcontours#findcontours
+		findContours(thres_output, contours, hierarchy, CV_RETR_TREE, CV_CHAIN_APPROX_SIMPLE, Point(0, 0));
+		cout << "The number of contours detected is: " << contours.size() << endl;
+
+		Mat contour_output = Mat::zeros(thres_output.size(), CV_8UC3);
+		// Find largest contour
+		int maxsize = 0;
+		int maxind = 0;
+		Rect boundrec;
+		for (int i = 0; i < contours.size(); i++)
+		{
+			// Documentation on contourArea: http://docs.opencv.org/modules/imgproc/doc/structural_analysis_and_shape_descriptors.html#
+			double area = contourArea(contours[i]);
+			if (area > maxsize) {
+				maxsize = area;
+				maxind = i;
+				boundrec = boundingRect(contours[i]);
+			}
+		}
+
+		// Draw contours
+		// Documentation for drawing contours: http://docs.opencv.org/modules/imgproc/doc/structural_analysis_and_shape_descriptors.html?highlight=drawcontours#drawcontours
+		drawContours(contour_output, contours, maxind, Scalar(255, 0, 0), CV_FILLED, 8, hierarchy);
+		drawContours(contour_output, contours, maxind, Scalar(0, 0, 255), 2, 8, hierarchy);
+		// Documentation for drawing rectangle: http://docs.opencv.org/modules/core/doc/drawing_functions.html
+		rectangle(contour_output, boundrec, Scalar(0, 255, 0), 1, 8, 0);
+
+		
+		int h = boundrec.height;
+		int w = boundrec.width;
+		/*
+		//if ((h == w) || ((h > w) && (((4 / 5)*h - w) < ((1 / 5)*h))) || ((w > h) && (((4 / 5)*w - h) < ((1 / 5)*w)))){
+		if (abs(h - w) < 100 ) {
+			overlayImage(frame, paper, frame, cv::Point(0, 0));
+			//namedWindow("YOU LOSE", CV_WINDOW_AUTOSIZE);
+			//imshow("YOU LOSE", paper);
+		}
+		else if ((h-w) < 0 ){
+			overlayImage(frame, scissors, frame, cv::Point(0, 0));
+			//namedWindow("YOU LOSE", CV_WINDOW_AUTOSIZE);
+			//imshow("YOU LOSE", scissors);
+		}
+		else if ((h - w) > 0){
+			overlayImage(frame, rock, frame, cv::Point(0, 0));
+			//namedWindow("YOU LOSE", CV_WINDOW_AUTOSIZE);
+			//imshow("YOU LOSE", rock);
+		}
+		*/
+		//cout << h << endl;
+		//cout << w << endl;
+		//cout << (pow((h - w), 2)) << endl;
+
+
+		cout << "The area of the largest contour detected is: " << contourArea(contours[maxind]) << endl;
+		cout << "-----------------------------" << endl << endl;
+
+		/// Show in a window
+		namedWindow("Contours", CV_WINDOW_AUTOSIZE);
+		imshow("Contours", contour_output);
+
+
+
+		if (waitKey(30) == 27)
+		{
+			cout << "esc key is pressed by user" << endl;
+			break;
+		}
+
+	}
+	cap.release();
+	return 0;
+}
+
+//Function that returns the maximum of 3 integers
+int myMax(int a, int b, int c) {
+	return max(max(a, b), c);
+}
+
+//Function that returns the minimum of 3 integers
+int myMin(int a, int b, int c) {
+	return min(min(a, b), c);
+}
+
+//Function that detects whether a pixel belongs to the skin based on RGB values
+void mySkinDetect(Mat& src, Mat& dst) {
+	//Surveys of skin color modeling and detection techniques:
+	//Vezhnevets, Vladimir, Vassili Sazonov, and Alla Andreeva. "A survey on pixel-based skin color detection techniques." Proc. Graphicon. Vol. 3. 2003.
+	//Kakumanu, Praveen, Sokratis Makrogiannis, and Nikolaos Bourbakis. "A survey of skin-color modeling and detection methods." Pattern recognition 40.3 (2007): 1106-1122.
+
+	//TODO:
+	//Use the following test for skin color detection
+	//Red > 95 and Blue > 20 and Green > 40, and 
+	//max(Red, Green, Blue) - min(Red, Green, Blue) > 15, and
+	//abs(Red - Green) > 15, and
+	//Red > Green, and
+	//Red > Blue
+
+	for (int i = 0; i < src.rows; i++)
+	{
+		for (int j = 0; j < src.cols; j++)
+		{
+			Vec3b intensity = src.at<Vec3b>(i, j);
+			if ((intensity[2] > 95) && (intensity[0] > 20) && (intensity[1] > 40) && (myMax(intensity[2], intensity[1], intensity[0]) - myMin(intensity[2], intensity[1], intensity[0]) > 15) && (abs(intensity[2] - intensity[1]) > 15) && (intensity[2] > intensity[1]) && (intensity[2] > intensity[0]))
+			{
+				dst.at<uchar>(i, j) = 255;
+			}
+		}
+	}
+
+}
+
+//Function that does frame differencing between the current frame and the previous frame
+//if theyre diff color black, else color white
+void myFrameDifferencing(Mat& one, Mat& two, Mat& dst) {
+	int dB;
+	int dG;
+	int dR;
+	for (int i = 0; i < two.rows; i++)
+	{
+		for (int j = 0; j < two.cols; j++)
+		{
+			dB = two.at<Vec3b>(i, j)[0] - one.at<Vec3b>(i, j)[0];
+			dG = two.at<Vec3b>(i, j)[1] - one.at<Vec3b>(i, j)[1];
+			dR = two.at<Vec3b>(i, j)[2] - one.at<Vec3b>(i, j)[2];
+			int poo = dB + dG + dR;
+			int doo = poo / 3;
+			bool foo = doo > .5;
+			if (foo)
+			{
+				dst.at<uchar>(i, j) = 255;
+			}
+		}
+
+	}
+}
+
+//Function that accumulates the frame differences for a certain number of pairs of frames
+void myMotionEnergy(vector<Mat> frames, Mat& dst) {
+	cout << "GOT HERE" << endl;
+	Mat mh0 = frames[0];
+	cout << (int)frames.size() << endl;
+	Mat mh1 = frames[1];
+	Mat mh2 = frames[2];
+
+	for (int i = 0; i < dst.rows; i++){
+		for (int j = 0; j < dst.cols; j++){
+			if (mh0.at<uchar>(i, j) == 255 || mh1.at<uchar>(i, j) == 255 || mh2.at<uchar>(i, j) == 255) {
+				dst.at<uchar>(i, j) = 255;
+			}
+		}
+	}
+}
+
+//Creates a thresholded image from a grayscale image.
+void myThresholdImage(Mat& src, Mat& dst, int threshold)
+{
+	dst = src.clone();
+	for (int i = 0; i < src.rows; i++)
+	{
+		for (int j = 0; j < src.cols; j++)
+		{
+			//For each pixel, assign intensity value of 0 if below threshold, else assign intensity value of 255
+			int intensity = src.at<uchar>(i, j);
+			if (intensity < threshold)
+			{
+				dst.at<uchar>(i, j) = 255;
+			}
+			else
+			{
+				dst.at<uchar>(i, j) = 0;
+			}
+		}
+	}
+}
+
+//Creates a grayscale image from a color image.
+void myGrayScale(Mat& src, Mat& dst) {
+	//Different algorithms for converting color to grayscale: http://www.johndcook.com/blog/2009/08/24/algorithms-convert-color-grayscale/
+	//go tru every pixel, get the bgr vals, then add them up and /3, then use this avg as the new val
+	/*dst = Mat::zeros(src.rows, src.cols, CV_8UC1); //Returns a zero array of same size as src mat, and of type CV_8UC1
+	for (int i = 0; i < src.rows; i++){
+	for (int j = 0; j < src.cols; j++){
+	//For each pixel, compute the average intensity of the 3 color channels
+	Vec3b intensity = src.at<Vec3b>(i,j); //Vec3b is a vector of 3 uchar (unsigned character)
+	int avg = (intensity[0] + intensity[1] + intensity[2])/3;
+	dst.at<uchar>(i,j) = avg;
+	}
+	} */
+	//takes source and destination, and how u r manipulating it
+	cvtColor(src, dst, CV_BGR2GRAY); //cvtColor documentation: http://docs.opencv.org/modules/imgproc/doc/miscellaneous_transformations.html
+}
+
+// from http://jepsonsblog.blogspot.com/2012/10/overlay-transparent-image-in-opencv.html
+void overlayImage(const cv::Mat &background, const cv::Mat &foreground,
+	cv::Mat &output, cv::Point2i location)
+{
+	background.copyTo(output);
+
+
+	// start at the row indicated by location, or at row 0 if location.y is negative.
+	for (int y = std::max(location.y, 0); y < background.rows; ++y)
+	{
+		int fY = y - location.y; // because of the translation
+
+		// we are done of we have processed all rows of the foreground image.
+		if (fY >= foreground.rows)
+			break;
+
+		// start at the column indicated by location, 
+
+		// or at column 0 if location.x is negative.
+		for (int x = std::max(location.x, 0); x < background.cols; ++x)
+		{
+			int fX = x - location.x; // because of the translation.
+
+			// we are done with this row if the column is outside of the foreground image.
+			if (fX >= foreground.cols)
+				break;
+
+			// determine the opacity of the foregrond pixel, using its fourth (alpha) channel.
+			double opacity =
+				((double)foreground.data[fY * foreground.step + fX * foreground.channels() + 3])
+
+				/ 255.;
+
+
+			// and now combine the background and foreground pixel, using the opacity, 
+
+			// but only if opacity > 0.
+			for (int c = 0; opacity > 0 && c < output.channels(); ++c)
+			{
+				unsigned char foregroundPx =
+					foreground.data[fY * foreground.step + fX * foreground.channels() + c];
+				unsigned char backgroundPx =
+					background.data[y * background.step + x * background.channels() + c];
+				output.data[y*output.step + output.channels()*x + c] =
+					backgroundPx * (1. - opacity) + foregroundPx * opacity;
+			}
+		}
+	}
+}
