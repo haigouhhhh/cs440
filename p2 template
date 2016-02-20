@@ -1,0 +1,253 @@
+
+<!-- saved from url=(0067)http://www.cs.bu.edu/fac/betke/cs440/restricted/p1/p1-template.html -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title> CS440/640 Homework Template: HW[x] Student Name [xxx]  </title>
+<style>
+<!--
+body{
+font-family: 'Trebuchet MS', Verdana;
+}
+p{
+font-family: 'Trebuchet MS', Times;
+margin: 10px 10px 15px 20px;
+}
+h3{
+margin: 5px;
+}
+h2{
+margin: 10px;
+}
+h1{
+margin: 10px 0px 0px 20px;
+}
+div.main-body{
+align:center;
+margin: 30px;
+}
+hr{
+margin:20px 0px 20px 0px;
+}
+-->
+</style>
+</head>
+
+<body>
+<center>
+<a href="http://www.bu.edu/"><img border="0" src="./CS440_640 Homework Template_ HW[x] Student Name [xxx]_files/bu-logo.gif" width="119" height="120"></a>
+</center>
+
+<h1>Assignment Title</h1>
+<p> 
+ CS 440 P 2 <br>
+ Yao Zhang <br>
+ Kathleen McKay <br>
+    2/23/16
+</p>
+
+<div class="main-body">
+<hr>
+<h2> Problem Definition </h2>
+<p>
+Give a concise description of current problem. For instance, what
+needs to be solved and why it is useful?  Do you make any assumptions?
+What are the difficulties?<br>
+<br>Understand how neural networks work
+<br>Implement a simple neural network
+<br>Understand the role of different parameters of a neural network, such as learning rate.
+<br>
+<br>The difficulties are translating the calculus we learned to code.
+<br><br>We used pair programming method to work together on this project. We found it most efficient to write the code together, and decide together on how to implement each method and solve each problem.
+</p>
+
+<hr>
+<h2> Method and Implementation </h2>
+<p>Give a concise description of the implemented method. For example, you might describe the motivation of current idea, the algorithmic steps or any formulation used in current method.
+<br>
+</p>
+
+<p>
+Briefly outline the functions you created in your code to carry out your algorithmic steps described above.
+<br><br>Fit function trains the NN by doing forward and backward propogation in addition to updating the gradients.<br>
+We used the forward propogation algorithm provided in Lab 4 skeleton code.<br>
+The backprop algorithm followed these steps: <br><br>
+Pick a rate parameter r = epsilon<br>
+Until performance is satisfactory<br><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;For each sample input:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Compute the resulting output.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Compute Beta for nodes in the output layer using<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Beta_z = D_z - Oz<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Compute Beta for all other nodes using<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Beta_j = summation[(Wj->k)*Ok*(1-Ok)*Beta_k]<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Compute weight changes for all weights using<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;delta(Wi->j) = r*Oi*Oj*(1-Oj)*Beta_j<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Add up the weight changes for all sample inputs, and change the weights.
+</p>
+
+<hr>
+<h2>Experiments</h2>
+<p>
+Describe your experiments, including the number of tests that you
+performed, and the relevant parameter values.  </p>
+<p>
+Define your evaluation
+metrics, e.g., detection rates, accuracy, running time. <br><br>
+Question 1: 1 trial for ToyLinear data set with 2 layers at a learning rate of 0.01<br>
+Question 2: 1 trial for ToyMoon data set with 2 layers at a learning rate of 0.01<br>
+Question 3: 1 trial for ToyLinear/ToyMoon data set with 1 hidden layer at learning rate of 0.01<br>
+Question 4: 3 trials for Toylinear/ToyMoon data set with learning rates: 0.05, 0.1, and 0.15<br>
+Question 5: 2 trials for ToyLinear/ToyMoon data set with hidden layer size: 5 and 10<br>
+Question 7: 4 trials for ToyLinear/ToyMoon data set with regularization
+</p>
+
+
+<hr>
+<h2> Results</h2>
+<p>
+List your experimental results.  Provide examples of input images and output
+images. If relevant, you may provide images showing any intermediate steps
+</p>
+
+<p>
+<table>
+<tbody><tr><td colspan="3"><center><h3>Results</h3></center></td></tr>
+<tr>
+<td> Question </td><td> ToyLinear</td> <td> ToyMoon</td> 
+</tr>
+<tr>
+  <td> Question 1 <br> 2 layers</td> 
+  <td> <img src="./CS440_640 Homework Template_ HW[x] Student Name [xxx]_files/linear.2L.NR.png"> </td>
+  <td> <img src=""> </td>   
+</tr> 
+<tr>
+  <td> Question 2 <br> 2 layers</td> 
+  <td> <img src=""> </td>
+  <td> <img src="./CS440_640 Homework Template_ HW[x] Student Name [xxx]_files/moon.2L.NR.png"> </td>
+</tr> 
+<tr>
+  <td> Question 3 <br> 3 layers</td> 
+  <td> <img src="./CS440_640 Homework Template_ HW[x] Student Name [xxx]_files/linear.3L.NR.png"> </td> 
+  <td> <img src="./CS440_640 Homework Template_ HW[x] Student Name [xxx]_files/moon.3L.NR.png"> </td>
+</tr> 
+  <td> Question 4 </td> 
+<tr>  
+  <td> Trial 1 <br> 3 layers<br> R = 0.01</td>
+  <td> <img src="./CS440_640 Homework Template_ HW[x] Student Name [xxx]_files/linear.3L.NR.rate.1.png"> </td> 
+  <td> <img src="./CS440_640 Homework Template_ HW[x] Student Name [xxx]_files/moon.3L.NR.rate.1.png"> </td>
+</tr> 
+<tr>
+  <td> Trial 2 <br> 3 layers<br> R = 0.05</td> 
+  <td> <img src="./CS440_640 Homework Template_ HW[x] Student Name [xxx]_files/linear.3L.NR.rate.05.png"> </td> 
+  <td> <img src="./CS440_640 Homework Template_ HW[x] Student Name [xxx]_files/moon.3L.NR.rate.05.png"> </td>
+</tr>
+<tr>  
+  <td> Trial 3 <br> 3 layers<br> R = 0.15</td>
+  <td> <img src="./CS440_640 Homework Template_ HW[x] Student Name [xxx]_files/linear.3L.NR.rate.15.png"> </td> 
+  <td> <img src="./CS440_640 Homework Template_ HW[x] Student Name [xxx]_files/moon.3L.NR.rate.15.png"> </td>
+</tr> 
+<tr>
+  <td> Question 5 </td> 
+</tr> 
+<tr>  
+  <td> Trial 1 <br> 5 layers<br> R = 0.01</td>
+  <td> <img src="./CS440_640 Homework Template_ HW[x] Student Name [xxx]_files/linear.5L.NR.png"> </td> 
+  <td> <img src="./CS440_640 Homework Template_ HW[x] Student Name [xxx]_files/moon.5L.NR.png"> </td>
+</tr> 
+<tr>
+  <td> Trial 2 <br> 10 layers<br> R = 0.01</td> 
+  <td> <img src="./CS440_640 Homework Template_ HW[x] Student Name [xxx]_files/linear.10L.NR.png"> </td> 
+  <td> <img src="./CS440_640 Homework Template_ HW[x] Student Name [xxx]_files/moon.10L.NR.png"> </td>
+</tr>
+<tr>
+  <td> Question 7 </td> 
+</tr> 
+<tr>  
+  <td> Trial 1 <br>Regularized<br>2 layers<br> R = 0.01</td>
+  <td> <img src="./CS440_640 Homework Template_ HW[x] Student Name [xxx]_files/linear.2L.png"> </td> 
+  <td> <img src="./CS440_640 Homework Template_ HW[x] Student Name [xxx]_files/moon.2L.png"> </td>
+</tr> 
+<tr>
+  <td> Trial 2 <br>Regularized<br>3 layers<br> R = 0.01</td> 
+  <td> <img src="./CS440_640 Homework Template_ HW[x] Student Name [xxx]_files/linear.3L.png"> </td> 
+  <td> <img src="./CS440_640 Homework Template_ HW[x] Student Name [xxx]_files/moon.3L.png"> </td>
+</tr>
+<tr>  
+  <td> Trial 3 <br>Regularized<br>5 layers<br> R = 0.01</td>
+  <td> <img src="./CS440_640 Homework Template_ HW[x] Student Name [xxx]_files/linear.5L.png"> </td> 
+  <td> <img src="./CS440_640 Homework Template_ HW[x] Student Name [xxx]_files/moon.5L.png"> </td>
+</tr>
+<tr>  
+  <td> Trial 4 <br>Regularized<br>10 layers<br> R = 0.01</td>
+  <td> <img src="./CS440_640 Homework Template_ HW[x] Student Name [xxx]_files/linear.10L.png"> </td> 
+  <td> <img src="./CS440_640 Homework Template_ HW[x] Student Name [xxx]_files/moon.10L.png"> </td>
+</tr>
+</tbody></table>
+</p>
+
+
+
+<hr>
+<h2> Discussion </h2>
+
+<p> 
+Discuss your method and results:
+</p><ul>
+<li>What are the strengths and weaknesses of your method? <br><br>
+On the one hand the code is easy to understand, but it rather inefficient when one could just simply use a neural network library.
+</li><br>
+<li>Do your results show that your method is generally successful or
+     are there limitations? Describe what you expected to find in your
+     experiments, and how that differed or was confirmed by your
+     results. <br><br>
+	Question 2: 2 layer can learn non-linear decision boundaries but not well because the boundary will just be a straight line.<br> 
+	<br>Question 3: 3 layers can learn non-linear decision boundaries because it can model a curve.<br>
+	<br>Question 4: The higher the learning rate the more unstable the NN becomes. <br>
+	<br>Question 5: The greater number of nodes the more it overfits.<br>
+	<br>Question 6: Overfitting is when the NN becomes too flexible and it is unable to accurately predict new points.  It occurs when there are too many weights that affect the outcome.  This can be reduced by using a wrapper to enumerate models according to model size. 
+	You could also use feature selection to simplify the model by discarding irrelevant attributes or use minimum description length by selecting model with the smallest number of bits required to encode program and data.<br>
+	<br>Question 7: L2 regularization penalizes your loss function by adding a multiple of a ridged norm of your weights vector W.  This will assure you avoid overfitting and will perform feature selection for certain regularization norms.
+	</li><br>
+<li>Potential future work. How could your method be improved?   What
+would you try (if you had more time) to overcome the
+failures/limitations of your work? <br><br>
+Make our code more efficient.</li> 
+</ul>
+<p></p>
+
+<hr>
+<h2> Conclusions </h2>
+
+<p>
+Based on your discussion, what are your conclusions?  What is your
+main message? <br>
+NNs can create boundary lines which could be really useful for some types of applications.
+</p>
+
+
+<hr>
+<h2> Credits and Bibliography </h2>
+<p>
+
+Cite any papers or other references you consulted while developing
+your solution.  Citations to papers should include the authors, the
+year of publication, the title of the work, and the publication
+information (e.g., book name and publisher; conference proceedings and
+location; journal name, volume and pages; technical report and
+institution).  Material on the web should include the url and date of
+access.<br><br>
+<a href=http://www.cs.bu.edu/fac/betke/cs440/restricted/lectures/nn-example-backprop.pdf> Lecture Notes</a> <br>
+<a href =http://iamtrask.github.io/2015/07/12/basic-python-network/>Basic Python Networks</a><br>
+<a href =https://www.quora.com/What-is-regularization-in-machine-learning>Regularization</a><br>
+
+</p>
+
+<p>
+Credit any joint work or discussions with your classmates.
+</p>
+<hr>
+</div>
+
+
+
+
+
+</body></html>
