@@ -1,0 +1,266 @@
+
+<!-- saved from url=(0067)http://www.cs.bu.edu/fac/betke/cs440/restricted/p1/p1-template.html -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title> CS440/640 Homework Template: HW[x] Student Name [xxx]  </title>
+<style>
+<!--
+body{
+font-family: 'Trebuchet MS', Verdana;
+}
+p{
+font-family: 'Trebuchet MS', Times;
+margin: 10px 10px 15px 20px;
+}
+h3{
+margin: 5px;
+}
+h2{
+margin: 10px;
+}
+h1{
+margin: 10px 0px 0px 20px;
+}
+div.main-body{
+align:center;
+margin: 30px;
+}
+hr{
+margin:20px 0px 20px 0px;
+}
+-->
+</style>
+</head>
+
+<body>
+<center>
+<a href="http://www.bu.edu/"><img border="0" src="./CS440_640 Homework Template_ HW[x] Student Name [xxx]_files/bu-logo.gif" width="119" height="120"></a>
+</center>
+
+<h1>Assignment Title</h1>
+<p> 
+ CS 440 P 3 <br>
+ Yao Zhang <br>
+ Kathleen McKay <br>
+    4/4/16 
+</p>
+
+<div class="main-body">
+<hr>
+<h2> Problem Definition </h2>
+<p>
+Give a concise description of current problem. For instance, what
+needs to be solved and why it is useful?  Do you make any assumptions?
+What are the difficulties?
+<br/>
+<br/>
+Build a basic English sentence recognizer based on hidden Markov models ("HMMs"). We are required to implement this HMM so that it handles various recognition tasks. 
+Specifically, given the Hidden Markov model and some input sentences, you are asked to write programs that perform the following:
+<br/><br/>
+Pattern Recognition: Given the HMM and several observation sequences, recognize should report the observation probability of each input sequence.
+<br/><br/>
+State-Path Determination: Implement the Viterbi algorithm to determine the optimal state path for each observation set and report its probability.
+<br/><br/>
+Model Optimization: Optimize the HMM using the Baum-Welch algorithm and report the probabilities before and after optimization.
+<br/><br/>We mostly used pair programming to work on this assignment. However Kathleen did most of recognize.py and statement.py, and Yao did most of optimize.py and answered the questions.
+</p>
+
+<hr>
+<h2> Method and Implementation </h2>
+<p>Give a concise description of the implemented method. For example, you might describe the motivation of current idea, the algorithmic steps or any formulation used in current method.
+<br/>Briefly outline the functions you created in your code to carry out your algorithmic steps described above.
+<br/><br/>
+<b>Forward procedure: </b>
+<br/> 
+where O is the observation sequence, O = O<sub>1</sub>O<sub>2</sub>,<sup>...</sup>,O<sub>T</sub>, given the model &lambda;, ie., P(O|&lambda;)
+<br/><br/>P(O|&lambda;) = &sum;<sub>all Q</sub>[P(O|Q,&lambda;) P(Q|&lambda;)] = &sum;<sub>q<sub>1</sub>,q<sub>2</sub>,<sup>...</sup>,q<sub>T</sub></sub>[&pi;<sub>q<sub>1</sub></sub>b<sub>q<sub>1</sub></sub>(O<sub>1</sub>)a<sub>q<sub>1</sub>q<sub>2</sub></sub>b<sub>q<sub>1</sub></sub>(O<sub>2</sub>)<sup>...</sup>a<sub>q<sub>T-1</sub></sub><sub>q<sub>T</sub></sub>b<sub>q<sub>T</sub></sub>(Q<sub>T</sub>).]
+
+<br/><br/>
+<b>Viterbi algorithm:</b>
+<br/>Where &delta;<sub>t</sub>(i) is the best score (highest probability) along a single path, at time t, which accounts for the first t observations and ends in state S<sub>i</sub>.
+<br/>&psi;(i) is the array that tracks the argument which maximized &delta;<sub>t+1</sub>(i) for each t and j.
+<br/><br/>
+1. Initialization: 
+<br/><span style="padding-left:55px">&delta;<sub>t</sub>(i) = &pi;<sub>i</sub>B<sub>i</sub>(O<sub>i</sub>), <span style="padding-left:40px"> 1 &le; i &le; N</span></span>
+<br/><br/> <span style="padding-left:55px">&psi;(i) = 0</span>
+<br/><br/>
+2. Recursion:
+<br/><span style="padding-left:55px">&delta;<sub>t</sub>(j) = max<sub>(1 &le; i &le; N)</sub>[&delta;<sub>t-1</sub>(i)a<sub>ij</sub>]b<sub>j</sub>(O<sub>t</sub>), <span style="padding-left:40px"> 2 &le; t &le; T</span></span>
+<br/><span style="padding-left:355px">1 &le; j &le; N.</span>
+<br/>
+<br/><span style="padding-left:55px">&psi;(j) = argmax<sub>(1 &le; i &le; N)</sub>[&delta;<sub>t-1</sub>(i)a<sub>ij</sub>], <span style="padding-left:40px"> 2 &le; t &le; T</span></span>
+<br/><span style="padding-left:335px">1 &le; j &le; N.</span>
+<br/><br/>
+3. Termination:
+<br/><span style="padding-left:55px">P<sup>*</sup> = max<sub>(1 &le; i &le; N)</sub>[&delta;<sub>T</sub>(i)]</span>
+<br/>
+<br/><span style="padding-left:55px">q<sub>T<sup>*</sup></sub> = argmax<sub>(1 &le; i &le; N)</sub>[&delta;<sub>T</sub>(i)]</span>
+<br/>
+<br/><b>Baum-Welch algorithm:</b>
+<br/><span style="text-decoration: overline">&pi;</span> =  expected frequency (number of times) in state S<sub>i</sub> at time (t=1)=&gamma;<sub>1</sub>(i)
+<br/>
+<br/><span style="text-decoration: overline">a</span><sub>ij</sub> = <u>expected number of transitions from state S<sub>i</sub> to state S<sub>j</sub></u> = &sum;<sup>T-1</sup><sub>t=1</sub>[&xi;<sub>t</sub>(i, j)]
+<br/><span style="padding-left:65px">expected number of transitions from state S<sub>i</sub><span style="padding-left:67px">&sum;<sup>T-1</sup><sub>t=1</sub>[&gamma;<sub>t</sub>(i)]</span></span>
+<br/>
+<br/><span style="text-decoration: overline">b</span><sub>j</sub>(k) = <u>expected number of times in state j and observing symbol v<sub>k</sub></u> = &sum;<sup>T</sup><sub>t=1 s.t O<sub>t</sub>=v<sub>k</sub></sub>[&gamma;<sub>t</sub>(i)]
+<br/><span style="padding-left:135px">expected number of times in state j<span style="padding-left:113px">&sum;<sup>T</sup><sub>t=1</sub>[&gamma;<sub>t</sub>(i)]</span></span>
+</p>
+
+<hr>
+<h2>Experiments</h2>
+<p>
+Describe your experiments, including the number of tests that you
+performed, and the relevant parameter values.  
+<br/>Define your evaluation
+metrics, e.g., detection rates, accuracy, running time. 
+<br/><br/> We tested our code on the following data: example1.obs, example2.obs and hmm provided.
+<br/> Our results matched the outputs the assignment said we should get.</p>
+
+
+<hr>
+<h2> Results</h2>
+<p>
+List your experimental results.  Provide examples of input images and output
+images. If relevant, you may provide images showing any intermediate steps
+<br/><br/>
+<b>Question 1.</b> For the current application, why does this probability seem lower than we expect? What does this probability tell you? Does the current HMM always give a reasonable answer? For instance, what is the output probability for the below sentence?
+<br/><br/>
+"robots do kids play chess"
+<br/>probability: 0.001512
+<br/><br/>
+"chess eat play kids"
+<br/>probability: 0.0
+<br/><br/>With the 8 given words,we can generate a lot of possible sentences with different length, different sequence, and the probability of each sentence only occupies a small rate of the total probability 1. As long as the probability is bigger than 0, it shows that this sentence is valid according to this HMM. It does not always give a reasonable answer, for example:
+<br/><br/>
+
+"robots do kids play chess"
+<br/><br/>
+The HMM decides that "robots do" is valid and "do kids play chess" is valid, it doesn't know it's actually a combination of two valid sentences.for example combining other valid sentences and experiment as follows:
+<br/><br/>
+"kids can kids play chess"
+<br/>
+Probability: 0.001889
+<br/><br/>
+It's not a valid sentence but the probability is bigger than 0.﻿
+<br/>
+<br/><b> Question 2.</b>  What can we tell from the reported optimal path for syntax analysis purpose? Can the HMM always correctly distinguish "statement" from "question" sentence? Why?
+<br/>The reported optimal path allows the computer to make further analysis on the type of sentence. 
+A question could be indicated by the fact that a sentence starts with an auxiliary--something that the program could easily determine. However, there are possible questions that could be formed, even with this very limited vocabulary, that did not adhere to this restriction. For example: "Robots can play?" or "Food?" 
+<br/><br/><b>Question 3.</b> Why should you not try to optimize an HMM with zero observation probability?
+<br/>The HMM estimates the A matrix by calculating the expectation of the  transition probabilities between each state, and it estimate the B matrix by calculating the expectation of the transition probabilities the certain state emitting the certain symbol. The above calculations are based on right sequences. Thus, if the observation probability is zero, the sequence is not reasonable which means it is also meaningless for calculating the true A and B.
+<br/><br/><b>Question 4.</b> Now supposed you want this HMM to model new syntax structures, like "PRESENT TENSE" or "ADVERB," so that the following sentences can be parsed: 
+<br/>"robots can play chess well"
+<br/>"kids do eat food fast"
+<br/>What kinds of changes will you need to make in the above HMM? Please describe your solution with an example of the modified matrices a, b and pi in the submitted web page.
+<br/>
+The above HMM would need to add another state after state D. This new state, state E ("well, fast") would only be accessible by state C and D so that it does not get placed in the middle of sentences. To better summarize, the below matrices show the changes that would need to be made. Analysis of said HMM would be the same as the current model.
+<br/><br/>
+5 10 5
+<br/>
+SUBJECT AUXILIARY PREDICATE OBJECT ADVERB
+<br/>
+kids robots do can play eat chess food well fast
+<br/><br/>a:
+<br/>0.0<font color = "white">dd</font>0.4<font color = "white">dd</font>0.6<font color = "white">dd</font>0.0<font color = "white">dd</font>0.0
+<br/>0.7<font color = "white">dd</font>0.0<font color = "white">dd</font>0.3<font color = "white">dd</font>0.0<font color = "white">dd</font>0.0
+<br/>0.0<font color = "white">dd</font>0.0<font color = "white">dd</font>0.0<font color = "white">dd</font>0.5<font color = "white">dd</font>0.5
+<br/>0.0<font color = "white">dd</font>0.0<font color = "white">dd</font>0.0<font color = "white">dd</font>0.0<font color = "white">dd</font>1.0
+<br/> 0.0<font color = "white">dd</font>0.0<font color = "white">dd</font>0.0<font color = "white">dd</font>0.0<font color = "white">dd</font>0.0
+<br/>
+<br/>b:
+<br/>0.5<font color = "white">dd</font>0.4<font color = "white">dd</font>0.0<font color = "white">dd</font>0.0<font color = "white">dd</font>0.0<font color = "white">dd</font>0.0<font color = "white">dd</font>0.05<font color = "white">d</font>0.05<font color = "white">d</font>0.0<font color = "white">dd</font>0.0
+<br/>0.0<font color = "white">dd</font>0.0<font color = "white">dd</font>0.5<font color = "white">dd</font>0.5<font color = "white">dd</font>0.0<font color = "white">dd</font>0.0<font color = "white">dd</font>0.0<font color = "white">dd</font>0.0<font color = "white">dd</font>0.0<font color = "white">dd</font>0.0
+<br/>0.0<font color = "white">dd</font>0.0<font color = "white">dd</font>0.0<font color = "white">dd</font>0.0<font color = "white">dd</font>0.5<font color = "white">dd</font>0.5<font color = "white">dd</font>0.0<font color = "white">dd</font>0.0<font color = "white">dd</font>0.0<font color = "white">dd</font>0.0
+<br/>0.1<font color = "white">dd</font>0.2<font color = "white">dd</font>0.0<font color = "white">dd</font>0.0<font color = "white">dd</font>0.0<font color = "white">dd</font>0.0<font color = "white">dd</font>0.3<font color = "white">dd</font>0.4<font color = "white">dd</font>0.0<font color = "white">dd</font>0.0
+<br/>0.0<font color = "white">dd</font>0.0<font color = "white">dd</font>0.0<font color = "white">dd</font>0.0<font color = "white">dd</font>0.0<font color = "white">dd</font>0.0<font color = "white">dd</font>0.0<font color = "white">dd</font>0.0<font color = "white">dd</font>0.5<font color = "white">dd</font>0.5
+<br/>
+<br/>pi:
+<br/>0.6<font color = "white">dd</font>0.3<font color = "white">dd</font>0.1<font color = "white">dd</font>0.0<font color = "white">dd</font>0.0
+<br/><br/>To make "PRESENT TENSE" work the HMM would need several changes. You could not just add a new state and modify the matrices, this time you would have to eliminate "PREDICATE" and add two states "PRESENT TENSE" and "PAST TENSE".
+More outputs would be added such as "played" and "ate" which would be accesible from the state "PAST TENSE".
+<br/><br/>
+5 10 5
+<br/>
+SUBJECT AUXILIARY PRESENTTENSE PASTTENSE OBJECT ADVERB
+<br/>
+kids robots do can play eat played ate chess food well fast
+<br/><br/>a:
+<br/>0.0<font color = "white">dd</font>0.4<font color = "white">dd</font>0.3<font color = "white">dd</font>0.3<font color = "white">dd</font>0.0<font color = "white">dd</font>0.0
+<br/>0.7<font color = "white">dd</font>0.0<font color = "white">dd</font>0.15<font color = "white">dd</font>0.15<font color = "white">dd</font>0.0<font color = "white">dd</font>0.0
+<br/>0.0<font color = "white">dd</font>0.0<font color = "white">dd</font>0.0<font color = "white">dd</font>0.0<font color = "white">dd</font>0.5<font color = "white">dd</font>0.5
+<br/>0.0<font color = "white">dd</font>0.0<font color = "white">dd</font>0.0<font color = "white">dd</font>0.0<font color = "white">dd</font>0.5<font color = "white">dd</font>0.5
+<br/>0.0<font color = "white">dd</font>0.0<font color = "white">dd</font>0.0<font color = "white">dd</font>0.0<font color = "white">dd</font>0.0<font color = "white">dd</font>1.0
+<br/> 0.0<font color = "white">dd</font>0.0<font color = "white">dd</font>0.0<font color = "white">dd</font>0.0<font color = "white">dd</font>0.0<font color = "white">dd</font>0.0
+<br/>
+<br/>b:
+<br/>0.5<font color = "white">dd</font>0.4<font color = "white">dd</font>0.0<font color = "white">dd</font>0.0<font color = "white">dd</font>0.0<font color = "white">dd</font>0.0<font color = "white">dd</font>0.0<font color = "white">dd</font>0.0<font color = "white">dd</font>0.05<font color = "white">d</font>0.05<font color = "white">d</font>0.0<font color = "white">dd</font>0.0
+<br/>0.0<font color = "white">dd</font>0.0<font color = "white">dd</font>0.5<font color = "white">dd</font>0.5<font color = "white">dd</font>0.0<font color = "white">dd</font>0.0<font color = "white">dd</font>0.0<font color = "white">dd</font>0.0<font color = "white">dd</font>0.0<font color = "white">dd</font>0.0<font color = "white">dd</font>0.0<font color = "white">dd</font>0.0
+<br/>0.0<font color = "white">dd</font>0.0<font color = "white">dd</font>0.0<font color = "white">dd</font>0.0<font color = "white">dd</font>0.5<font color = "white">dd</font>0.5<font color = "white">dd</font>0.0<font color = "white">dd</font>0.0<font color = "white">dd</font>0.0<font color = "white">dd</font>0.0<font color = "white">dd</font>0.0<font color = "white">dd</font>0.0
+<br/>0.0<font color = "white">dd</font>0.0<font color = "white">dd</font>0.0<font color = "white">dd</font>0.0<font color = "white">dd</font>0.0<font color = "white">dd</font>0.0<font color = "white">dd</font>0.5<font color = "white">dd</font>0.5<font color = "white">dd</font>0.0<font color = "white">dd</font>0.0<font color = "white">dd</font>0.0<font color = "white">dd</font>0.0
+<br/>0.1<font color = "white">dd</font>0.2<font color = "white">dd</font>0.0<font color = "white">dd</font>0.0<font color = "white">dd</font>0.0<font color = "white">dd</font>0.0<font color = "white">dd</font>0.0<font color = "white">dd</font>0.0<font color = "white">dd</font>0.3<font color = "white">dd</font>0.4<font color = "white">dd</font>0.0<font color = "white">dd</font>0.0
+<br/>0.0<font color = "white">dd</font>0.0<font color = "white">dd</font>0.0<font color = "white">dd</font>0.0<font color = "white">dd</font>0.0<font color = "white">dd</font>0.0<font color = "white">dd</font>0.0<font color = "white">dd</font>0.0<font color = "white">dd</font>0.0<font color = "white">dd</font>0.0<font color = "white">dd</font>0.5<font color = "white">dd</font>0.5
+<br/>
+<br/>pi:
+<br/>0.6<font color = "white">dd</font>0.3<font color = "white">dd</font>0.05<font color = "white">dd</font>0.05<font color = "white">dd</font>0.0<font color = "white">dd</font>0.0
+</p>
+
+
+
+
+<hr>
+<h2> Discussion </h2>
+
+<p> 
+Discuss your method and results:
+</p><ul>
+<li>What are the strengths and weaknesses of your method? </li>
+<li>Do your results show that your method is generally successful or
+     are there limitations? Describe what you expected to find in your
+     experiments, and how that differed or was confirmed by your
+     results. </li>
+<li>Potential future work. How could your method be improved?   What
+would you try (if you had more time) to overcome the
+failures/limitations of your work?</li> 
+</ul>
+<p>We know that the algorithms we used were the most appropriate because we learned them in class.
+<br/>However our code only works on these toy examples and to be of real use would need to be expanded. 
+<br/>Also the way we wrote the code for the Baum-Welch Algorithm was very long-winded. It could be written more succinctly. </p>
+
+<hr>
+<h2> Conclusions </h2>
+
+<p>
+Based on your discussion, what are your conclusions?  What is your
+main message?
+<br/><br/>We conclude that these files will output the correct answers on the toy HMM's given to us. 
+</p>
+
+
+<hr>
+<h2> Credits and Bibliography </h2>
+<p>
+
+Cite any papers or other references you consulted while developing
+your solution.  Citations to papers should include the authors, the
+year of publication, the title of the work, and the publication
+information (e.g., book name and publisher; conference proceedings and
+location; journal name, volume and pages; technical report and
+institution).  Material on the web should include the url and date of
+access.
+<br/><br/>https://en.wikipedia.org/wiki/Viterbi_algorithm
+<br/>https://en.wikipedia.org/wiki/Baum%E2%80%93Welch_algorithm
+<br/>http://www.indiana.edu/~iulg/moss/hmmcalculations.pdf
+<br/>https://github.com/joewstroman/HiddenMarkovModel
+</p>
+
+<p>
+Credit any joint work or discussions with your classmates.
+<br/><br/>Johnson Lam 
+</p>
+<hr>
+</div>
+
+
+
+
+
+</body></html>
