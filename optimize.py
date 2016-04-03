@@ -1,8 +1,13 @@
 import numpy as np
+import sys
 
 def main():
-    hmm = open('Z:\\440\P3\sentence.hmm', 'r')
-    obs = open('Z:\\440\P3\example2.obs', 'r')
+    fileNames = []
+    for arg in sys.argv[1:]:
+        fileNames.append(arg)
+    
+    hmm = open(fileNames[0], 'r')
+    obs = open(fileNames[1], 'r')
     numberOf = hmm.readline()
     numberOfA = [0,0,0]
     numberOfA = numberOf.split()
