@@ -1,0 +1,148 @@
+
+<html>
+<head>
+<title> CS440/640 Homework Template: HW[x] Yao Zhang [xxx]  </title>
+<style>
+<!--
+body{
+font-family: 'Trebuchet MS', Verdana;
+}
+p{
+font-family: 'Trebuchet MS', Times;
+margin: 10px 10px 15px 20px;
+}
+h3{
+margin: 5px;
+}
+h2{
+margin: 10px;
+}
+h1{
+margin: 10px 0px 0px 20px;
+}
+div.main-body{
+align:center;
+margin: 30px;
+}
+hr{
+margin:20px 0px 20px 0px;
+}
+-->
+</style>
+</head>
+
+<body>
+<center>
+<a href="http://www.bu.edu"><img border="0" src="http://www.cs.bu.edu/fac/betke/images/bu-logo.gif"
+width="119" height="120"></a>
+</center>
+
+<h1>Assignment Title</h1>
+<p> 
+ CS 440 P 1 <br>
+ Yao Zhang <br>
+ Kathleen McKay <br>
+    4/15/16 
+</p>
+
+<div class="main-body">
+<hr>
+<h2> Problem Definition </h2>
+<p>
+Give a concise description of current problem. For instance, what
+needs to be solved and why it is useful?  Do you make any assumptions?
+What are the difficulties?<br/><br/>
+
+This is a program that will play the game Atropos.  It uses a static evaluator and a minimax search with alpha-beta pruning to determine the move it should make.
+<br/> We mostly used pair programming to work on this assignment.
+</p>
+
+<hr>
+<h2> Method and Implementation </h2>
+<p>Give a concise description of the implemented method. For example, you might describe the motivation of current idea, the algorithmic steps or any formulation used in current method.
+</p>
+
+<p>
+Briefly outline the functions you created in your code to carry out your algorithmic steps described above.
+<br/><br/>
+The static evaluator uses two scores to calculate the move.  The first one is to see whether a particular position will create traps for the opponent, and additional points if the move will cause the opponent to fall into the trap.  Trap, here, means that the opponent will be forced to take a turn in which he/she will only have one position on the board to color.  It then chooses the color by picking the color that is most seen adjacent to the spot in the <i>best</i> position.  The positional score outweighs the highest score for the color, so the two do not interfere with each other.  Positional score is the highest priority.
+<br/><br/>
+The search algorithm uses a minimax search with alpha-beta pruning to look through the tree of possible moves.  It can look five to six moves ahead with reasonable timing.
+</p>
+
+<hr>
+<h2>Experiments</h2>
+<p>
+Describe your experiments, including the number of tests that you
+performed, and the relevant parameter values.  </p>
+<p>
+Define your evaluation
+metrics, e.g., detection rates, accuracy, running time. 
+<br/><br/>
+The program has been tested ten times with a lookahead depth of both five and six, while playing on a board of size seven. Each test was conducted by calculating the win percentage after playing ten games against the default opponent, which plays by choosing a random legal move.
+</p>
+
+
+<hr>
+<h2> Results</h2>
+<p>
+List your experimental results.  Provide examples of input images and output
+images. If relevant, you may provide images showing any intermediate steps
+<br/>
+<table cellpadding="0" cellspacing="0" class="c16"><tbody><tr class="c1"><td class="c10" colspan="1" rowspan="1"><p class="c0"><span class="c3">Depth</span></p></td><td class="c11" colspan="1" rowspan="1"><p class="c0"><span class="c3">Test #1</span></p></td><td class="c6" colspan="1" rowspan="1"><p class="c0"><span class="c3">Test #2</span></p></td><td class="c6" colspan="1" rowspan="1"><p class="c0"><span class="c3">Test #3</span></p></td><td class="c6" colspan="1" rowspan="1"><p class="c0"><span class="c3">Test #4</span></p></td><td class="c6" colspan="1" rowspan="1"><p class="c0"><span class="c3">Test #5</span></p></td><td class="c6" colspan="1" rowspan="1"><p class="c0"><span class="c3">Test #6</span></p></td><td class="c6" colspan="1" rowspan="1"><p class="c0"><span class="c3">Test #7</span></p></td><td class="c6" colspan="1" rowspan="1"><p class="c0"><span class="c3">Test #8</span></p></td><td class="c6" colspan="1" rowspan="1"><p class="c0"><span class="c3">Test #9</span></p></td><td class="c9" colspan="1" rowspan="1"><p class="c0"><span class="c3">Test #10</span></p></td><td class="c7" colspan="1" rowspan="1"><p class="c0"><span class="c3">Average</span></p></td></tr><tr class="c1"><td class="c10" colspan="1" rowspan="1"><p class="c0"><span class="c5">5</span></p></td><td class="c11" colspan="1" rowspan="1"><p class="c0"><span class="c5">90%</span></p></td><td class="c6" colspan="1" rowspan="1"><p class="c0"><span class="c5">70%</span></p></td><td class="c6" colspan="1" rowspan="1"><p class="c0"><span class="c5">80%</span></p></td><td class="c6" colspan="1" rowspan="1"><p class="c0"><span class="c5">70%</span></p></td><td class="c6" colspan="1" rowspan="1"><p class="c0"><span class="c5">80%</span></p></td><td class="c6" colspan="1" rowspan="1"><p class="c0"><span class="c5">80%</span></p></td><td class="c6" colspan="1" rowspan="1"><p class="c0"><span class="c5">70%</span></p></td><td class="c6" colspan="1" rowspan="1"><p class="c0"><span class="c5">80%</span></p></td><td class="c6" colspan="1" rowspan="1"><p class="c0"><span class="c5">90%</span></p></td><td class="c9" colspan="1" rowspan="1"><p class="c0"><span class="c5">80%</span></p></td><td class="c7" colspan="1" rowspan="1"><p class="c0"><span class="c5">79%</span></p></td></tr><tr class="c1"><td class="c10" colspan="1" rowspan="1"><p class="c0"><span class="c5">6</span></p></td><td class="c11" colspan="1" rowspan="1"><p class="c0"><span class="c5">80%</span></p></td><td class="c6" colspan="1" rowspan="1"><p class="c0"><span class="c5">80%</span></p></td><td class="c6" colspan="1" rowspan="1"><p class="c0"><span class="c5">80%</span></p></td><td class="c6" colspan="1" rowspan="1"><p class="c0"><span class="c5">80%</span></p></td><td class="c6" colspan="1" rowspan="1"><p class="c0"><span class="c5">70%</span></p></td><td class="c6" colspan="1" rowspan="1"><p class="c0"><span class="c5">70%</span></p></td><td class="c6" colspan="1" rowspan="1"><p class="c0"><span class="c5">70%</span></p></td><td class="c6" colspan="1" rowspan="1"><p class="c0"><span class="c5">80%</span></p></td><td class="c6" colspan="1" rowspan="1"><p class="c0"><span class="c5">70%</span></p></td><td class="c9" colspan="1" rowspan="1"><p class="c0"><span class="c5">70%</span></p></td><td class="c7" colspan="1" rowspan="1"><p class="c0"><span class="c5">75%</span></p></td></tr></tbody></table>
+</p>
+
+<hr>
+<h2> Discussion </h2>
+
+<p> 
+Discuss your method and results:
+<ul>
+<li>What are the strengths and weaknesses of your method? </li>
+<li>Do your results show that your method is generally successful or
+     are there limitations? Describe what you expected to find in your
+     experiments, and how that differed or was confirmed by your
+     results. </li>
+<li>Potential future work. How could your method be improved?   What
+would you try (if you had more time) to overcome the
+failures/limitations of your work?</li> 
+</ul>
+</p>
+One strength of this method is that the program can look many steps ahead.  The scoring system does not take a very long time, making the program able to look up to six moves ahead with reasonable time (no more than a few seconds).  It also attempts to end the game quickly, rather than filling up the entire board.  It relies on putting the opponent in a position where he will only have an option to choose which color to use.  This means that the program does not make much use of choosing a good color when making it’s move.  It forces the opponent to be able to take only one spot, which is means a good chance of the opponent not being able to make a safe move.  Surprisingly, the lookahead depth of five moves performed worse than the lookahead depth of six moves, although both consistently perform better than random.  This surprising result is likely due to the randomness of the opponent, giving the higher lookahead unlucky numbers and the lower lookahead lucky numbers during testing.
+<br/><br/>
+The scoring system can certainly have a better coloring system.  For the allotted time to complete this project, top priority was given to the position of the move.  The coloring system was tested by trying to color the spot with the color that is both the least and most seen adjacent to the spot.  It seemed that coloring with the color that is most seen adjacent to the spot produced higher winning percentages, so that is the system used in the final version.
+
+<hr>
+<h2> Conclusions </h2>
+
+<p>
+Based on your discussion, what are your conclusions?  What is your
+main message?
+<br/>
+This automatic player can consistently beat the default player more than half the time. 
+</p>
+
+
+<hr>
+<h2> Credits and Bibliography </h2>
+<p>
+
+Cite any papers or other references you consulted while developing
+your solution.  Citations to papers should include the authors, the
+year of publication, the title of the work, and the publication
+information (e.g., book name and publisher; conference proceedings and
+location; journal name, volume and pages; technical report and
+institution).  Material on the web should include the url and date of
+access.
+</p>
+
+<p>
+Credit any joint work or discussions with your classmates. 
+</p>
+<hr>
+</div>
+</body>
+
+
+
+</html>
