@@ -68,6 +68,23 @@ Briefly outline the functions you created in your code to carry out your algorit
 The static evaluator uses two scores to calculate the move.  The first one is to see whether a particular position will create traps for the opponent, and additional points if the move will cause the opponent to fall into the trap.  Trap, here, means that the opponent will be forced to take a turn in which he/she will only have one position on the board to color.  It then chooses the color by picking the color that is most seen adjacent to the spot in the <i>best</i> position.  The positional score outweighs the highest score for the color, so the two do not interfere with each other.  Positional score is the highest priority.
 <br/><br/>
 The search algorithm uses a minimax search with alpha-beta pruning to look through the tree of possible moves.  It can look five to six moves ahead with reasonable timing.
+<br/><br/>
+methods:
+<br/>
+numberOfSpots - figure out the number of spots based on board size
+<br/>
+findNeighbors - returns list of neighboring spots
+<br/>
+findAvailable - find available spots
+<br/>
+findAvailable2 - find the available spots within boarder of already colored spots
+<br/>
+isLoser - figures out if the move will cause a loss
+<br/>
+calcScore -  figure out score for move
+<br/>
+minimaxAB - minimax & a-b pruning
+<br/>
 </p>
 
 <hr>
